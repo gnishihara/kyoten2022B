@@ -195,8 +195,27 @@ m2b  = lm(Weight ~ Calluna + pH, data = festuca2)
 m3a  = lm(Weight ~ pH + Calluna + pH:Calluna, data = festuca2) 
 m3b  = lm(Weight ~ Calluna + pH + Calluna:pH, data = festuca2) 
 
+# W = C + P と W = P + H の結果は違いが、データはおなじ。
+# 問題です。この分散分析は Type-I 平方和
 anova(m0, m1a, m2a, m3a, test = "F")
 anova(m0, m1b, m2b, m3b, test = "F")
+
+# 釣り合いのない・データ数が異なるデータの分散分析は
+# Type-III 平方をつかう
+# (Intercept): 総平均値(全データの平均値)
+Anova(m3a, test = "F", type = "III")
+Anova(m3b, test = "F", type = "III")
+
+
+emmeans(m3a, pairwise ~ pH|Calluna)
+emmeans(m3a, pairwise ~ Calluna|pH)
+
+
+
+
+
+
+
 
 
 
