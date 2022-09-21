@@ -165,12 +165,38 @@ ggplot(festuca) +
                  color = Calluna),
              position = position_jitterdodge(0.1, 0, 0.2))
 
+# H0: pH の影響はない
+# H1: Callunaの影響はない
+# H2: pH ✕ Calluna の相互作用の影響はない
+
+m0  = lm(Weight ~ 1, data = festuca) # 帰無モデル（説明変数なし）
+m1a = lm(Weight ~ pH, data = festuca) 
+m1b = lm(Weight ~ Calluna, data = festuca) 
+m2a  = lm(Weight ~ pH + Calluna, data = festuca) 
+m2b  = lm(Weight ~ Calluna + pH, data = festuca) 
+m3a  = lm(Weight ~ pH + Calluna + pH:Calluna, data = festuca) 
+m3b  = lm(Weight ~ Calluna + pH + Calluna:pH, data = festuca) 
 
 
+anova(m0, m1a, m2a, m3a, test = "F")
+anova(m0, m1b, m2b, m3b, test = "F")
 
+festuca
 
+# データのバランス・釣り合いがいいとき、上のどの解析でもいい
 
+festuca2 = festuca |> slice(c(1:4, 5:8, 10:18))
 
+m0  = lm(Weight ~ 1, data = festuca2) # 帰無モデル（説明変数なし）
+m1a = lm(Weight ~ pH, data = festuca2) 
+m1b = lm(Weight ~ Calluna, data = festuca2) 
+m2a  = lm(Weight ~ pH + Calluna, data = festuca2) 
+m2b  = lm(Weight ~ Calluna + pH, data = festuca2) 
+m3a  = lm(Weight ~ pH + Calluna + pH:Calluna, data = festuca2) 
+m3b  = lm(Weight ~ Calluna + pH + Calluna:pH, data = festuca2) 
+
+anova(m0, m1a, m2a, m3a, test = "F")
+anova(m0, m1b, m2b, m3b, test = "F")
 
 
 
