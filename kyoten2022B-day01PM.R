@@ -146,80 +146,38 @@ fortify(m1) |> as_tibble() |>
 
 m1 |> summary.aov()
 
-#
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# 多重比較
+c1 = emmeans(m1, specs = pairwise ~ Species)
+c1
+c1$emmeans |> confint() # 群ごとの平均値
+c1$contrasts |> confint() # 比較ごとの差の平均値
 
 
 ####################################################
 # 二元配置分散分析
 URL = "https://raw.githubusercontent.com/dzchilds/stats-for-bio/master/data_csv/FESTUCA.CSV"
 festuca = read_csv(URL)
+
+
+ggplot(festuca) + 
+  geom_point(aes(x = pH, 
+                 y = Weight,
+                 color = Calluna),
+             position = position_jitterdodge(0.1, 0, 0.2))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
