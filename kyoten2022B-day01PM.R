@@ -55,7 +55,13 @@ ggplot(iris) +
 leveneTest(Petal.Length ~ Species, data = iris)
 
 apply_lt = function(x) {
+  # H0: 分散は等しい
   leveneTest(value ~ Species, data = x)
+}
+
+apply_sw = function(x) {
+  # H0: 正規分布の母集団から抽出した
+  shapiro.test(x$value)
 }
 
 iris |> 
@@ -79,6 +85,15 @@ iris |>
   group_nest(name) |> 
   mutate(levene = map(data, apply_lt)) |> 
   pull(levene)
+
+iris |> 
+  pivot_longer(cols = matches("Length|Width")) |> 
+  group_nest(name) |> 
+  mutate(levene = map(data, apply_lt)) |> 
+  mutate(shapiro = map(data, apply_sw)) |> 
+  pull(shapiro)
+
+
 
 
 ##
