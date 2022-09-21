@@ -174,6 +174,36 @@ ggplot() +
         legend.title = element_blank())
  
 
+# MANOVA
+# 多変量解析
+
+iris
+
+manova(cbind(Petal.Length, Petal.Width) ~ Species, 
+   data = iris) |> 
+  summary()
+
+
+ggplot() + 
+  geom_point(aes(x = Petal.Width, 
+                 y = Petal.Length,
+                 color = Species),
+             data = iris) +
+  geom_smooth(aes(x = Petal.Width, 
+                  y = Petal.Length),
+              data = iris,
+              method = "lm",
+              formula = y~x, se = )
+ 
+
+
+
+
+
+
+
+
+
 
 
 
