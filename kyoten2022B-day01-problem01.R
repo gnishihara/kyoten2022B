@@ -45,3 +45,11 @@ iris = iris |>
 ggplot(iris) + 
   geom_boxplot(aes(x = Species, y = Petal.Length,
                    fill = Sepal.Length))
+
+# （１）二元配置分散分析
+# （２）標準化残渣のQQプロットと
+# （３）Speciesごと標準化残渣の散布図
+# （４）Sepal.Lengthごと標準化残渣の散布図
+
+
+
