@@ -72,7 +72,7 @@ m3 = lm(Petal.Length ~ Species * Sepal.Length, data = iris)
 
 
 # （１）二元配置分散分析
-anova(m0, m1, m2, m3, test = "F")
+Anova(m3, test = "F", type = "III")
 
 # （２）標準化残渣のQQプロットと
 fortify(m3) |> 
@@ -82,7 +82,6 @@ fortify(m3) |>
   geom_qq_line(aes(sample = .stdresid))
 
 # （３）Speciesごと標準化残渣の散布図
- 
 fortify(m3) |> 
   as_tibble() |> 
   ggplot() +
