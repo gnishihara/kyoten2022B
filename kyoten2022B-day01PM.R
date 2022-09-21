@@ -210,7 +210,7 @@ Anova(m3b, test = "F", type = "III")
 emmeans(m3a, pairwise ~ pH|Calluna)
 emmeans(m3a, pairwise ~ Calluna|pH)
 
-
+##########################################################
 
 
 
