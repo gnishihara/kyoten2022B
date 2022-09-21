@@ -94,16 +94,59 @@ iris |>
   pull(shapiro)
 
 
+## 分散分析はrobust。
 
 
-##
+lm(Sepal.Length ~ Species, data = iris) |> 
+  summary.aov()
 
 
+m1 = lm(Sepal.Length ~ Species, data = iris) 
+
+iris2 = iris |> 
+  mutate(fit = fitted(m1),
+         residuals = residuals(m1),
+         rstandard = rstandard(m1),
+         rstudent = rstudent(m1))
 
 
+# 残渣タイ因子の図
+# 
+ggplot(iris2) +
+  geom_point(aes(x = Species,
+                 y = residuals),
+             position = position_jitter(0.2))
+  
+# 標準化残渣のヒストグラム
+fortify(m1) |> as_tibble() |> 
+  ggplot() +
+  geom_histogram(aes(x = .stdresid))
 
+# 標準化残渣のQQプロット
 
+fortify(m1) |> as_tibble() |> 
+  ggplot() +
+  geom_qq(aes(sample = .stdresid)) +
+  geom_qq_line(aes(sample = .stdresid))
 
+# 標準化残渣と説明変数の関係
+
+fortify(m1) |> as_tibble() |> 
+  ggplot() +
+  geom_point(aes(x = Species,
+                 y = .stdresid),
+             position = position_jitter(0.2))
+
+# scaled-absolute standardized residuals
+fortify(m1) |> as_tibble() |> 
+  ggplot() +
+  geom_point(aes(x = Species,
+                 y = sqrt(abs(.stdresid))),
+             position = position_jitter(0.2))
+
+m1 |> summary.aov()
+
+#
 
 
 
