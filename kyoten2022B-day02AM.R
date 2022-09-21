@@ -29,23 +29,6 @@ theme_gray(base_family = "notosansjp") |> theme_set()
 showtext_auto()
 
 ################################################################
-# 一元配置分散分析
-# グループごとの分散は等しい
-# グループごとのデータ数は等しい
-# グループごとのデータは正規分布に従う
-# データは独立同一分布である
-iris = iris |> as_tibble()
 
-iris |> 
-  pivot_longer(cols = matches("Length|Width")) |> 
-  group_by(Species, name) |> 
-  summarise(mean = mean(value),
-            sd = sd(value),
-            var = var(value)) |> 
-  arrange(name)
-
-ggplot(iris) + 
-  geom_boxplot(aes(x = Species, y = Petal.Length))
-
-
-
+# install.packages("faraway")
+data(gala, package = "faraway")
