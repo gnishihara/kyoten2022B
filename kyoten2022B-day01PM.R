@@ -77,8 +77,8 @@ iris |>
 iris |> 
   pivot_longer(cols = matches("Length|Width")) |> 
   group_nest(name) |> 
-  mutate(levene = map(data, apply_lt))
-
+  mutate(levene = map(data, apply_lt)) |> 
+  pull(levene)
 
 
 ##
