@@ -62,6 +62,11 @@ m1 = lm(Petal.Length ~ Sepal.Length, data = iris)
 m2 = lm(Petal.Length ~ Sepal.Length + Species, data = iris)
 m3 = lm(Petal.Length ~ Sepal.Length * Species, data = iris)
 
+# H0: 説明変数の影響はない
+# H1: Sepal.length の影響がない
+# H2: Sepal.Length と Species の影響はない
+# H3:相互作用の影響はない（Speciesごとの傾きがおなじ）
+
 anova(m0, m1, m2, m3, test = "F")
 
 fortify(m3) |> as_tibble() |> 
@@ -75,6 +80,99 @@ fortify(m0) |> as_tibble() |>
   ggplot() + 
   geom_qq(aes(sample = .stdresid)) +
   geom_qq_line(aes(sample = .stdresid))
+
+fortify(m3) |> as_tibble() |> 
+  ggplot() + 
+  geom_point(aes(x = Sepal.Length,
+                 y = .stdresid, 
+                 color = Species))
+
+fortify(m3) |> as_tibble() |> 
+  ggplot() + 
+  geom_point(aes(x = Sepal.Length,
+                 y = sqrt(abs(.stdresid)), 
+                 color = Species)) +
+  geom_smooth(aes(x = Sepal.Length,
+                  y = sqrt(abs(.stdresid))))
+
+
+emtrends(m3, pairwise ~ Species, var = "Sepal.Length")
+
+
+
+# 作図
+
+piris = iris |> group_by(Species) |> 
+  summarise(min = min(Sepal.Length),
+            max = max(Sepal.Length)) |> 
+  mutate(Sepal.Length = map2(min, max, \(x, y) {
+    seq(x, y, length = 11)
+  })) |> 
+  unnest(Sepal.Length)
+
+# piris = piris |> mutate(fit = predict(m3, newdata = piris))
+
+tmp = predict(m3, newdata = piris, se = TRUE) |> as_tibble()
+
+piris = bind_cols(piris, tmp)
+
+piris = piris |> 
+  mutate(lse = fit - se.fit,
+         use = fit + se.fit,
+         l95 = fit - 1.96*se.fit,
+         u95 = fit + 1.96*se.fit)
+
+z = summary(m3)
+
+z$adj.r.squared # 調整済み決定係数
+
+text1 = sprintf("R[adj]^2 == %0.4f", z$adj.r.squared)
+text2 = sprintf("F['%0.0f, %0.f'] == %0.1f~'(P < 0.0001)'", 
+        z$fstatistic[2], z$fstatistic[3], z$fstatistic[1])
+ggplot() + 
+  geom_ribbon(aes(x = Sepal.Length,
+                  ymin = lse,
+                  ymax = use,
+                  fill = Species), 
+              data = piris,
+              alpha = 0.25) +
+  geom_ribbon(aes(x = Sepal.Length,
+                  ymin = l95,
+                  ymax = u95,
+                  fill = Species), 
+              data = piris,
+              alpha = 0.25) +
+  geom_point(aes(x = Sepal.Length,
+                 y = Petal.Length,
+                 color = Species),
+             data = iris) +
+  geom_line(aes(x = Sepal.Length,
+                y = fit,
+                color = Species),
+            data = piris) +
+  annotate("text",
+           x = 4,
+           y = 8,
+           label = text1,
+           parse = TRUE,
+           hjust = 0,
+           vjust = 1) +
+  annotate("text",
+           x = 4,
+           y = 7,
+           label = text2,
+           parse = TRUE,
+           hjust = 0,
+           vjust = 1) +
+  scale_x_continuous("Sepal Length (cm)",
+                     limits = c(4, 8)) +
+  scale_y_continuous("Petal Length (cm)",
+                     limits = c(0, 8))  +
+  theme(legend.position = c(1,0),
+        legend.justification = c(1,0),
+        legend.background = element_blank(),
+        legend.title = element_blank())
+ 
 
 
 
