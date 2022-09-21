@@ -51,5 +51,46 @@ ggplot(iris) +
 # （３）Speciesごと標準化残渣の散布図
 # （４）Sepal.Lengthごと標準化残渣の散布図
 
+m0 = lm(Petal.Length ~ 1, data = iris)
+m1 = lm(Petal.Length ~ Species, data = iris)
+m2 = lm(Petal.Length ~ Species + Sepal.Length, data = iris)
+m3 = lm(Petal.Length ~ Species * Sepal.Length, data = iris)
+
+# （１）二元配置分散分析
+anova(m0, m1, m2, m3, test = "F")
+
+# （２）標準化残渣のQQプロットと
+fortify(m3) |> 
+  as_tibble() |> 
+  ggplot() +
+  geom_qq(aes(sample = .stdresid)) +
+  geom_qq_line(aes(sample = .stdresid))
+
+# （３）Speciesごと標準化残渣の散布図
+ 
+fortify(m3) |> 
+  as_tibble() |> 
+  ggplot() +
+  geom_point(aes(x = Species, y = .stdresid),
+             position = position_jitter(0.1))
+
+# （４）Sepal.Lengthごと標準化残渣の散布図 
+fortify(m3) |> 
+  as_tibble() |> 
+  ggplot() +
+  geom_point(aes(x = Sepal.Length, y = .stdresid),
+             position = position_jitter(0.1))
+
+
+
+
+
+
+
+
+
+
+
+
 
 
