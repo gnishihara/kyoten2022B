@@ -28,7 +28,7 @@ theme_gray(base_family = "notosansjp") |> theme_set()
 # theme_gray(base_family = "meiryo") |> theme_set()
 showtext_auto()
 
-################################################################
+###################################################a#############
 # 一元配置分散分析
 # グループごとの分散は等しい
 # グループごとのデータ数は等しい
@@ -46,4 +46,21 @@ iris |>
 
 ggplot(iris) + 
   geom_boxplot(aes(x = Species, y = Petal.Length))
+
+
+# 共分散分散分析
+iris
+ggplot() + 
+  geom_point(aes(x = Sepal.Length,
+                 y = Petal.Length,
+                 color = Species),
+             data = iris)
+
+
+
+
+
+
+
+
 
