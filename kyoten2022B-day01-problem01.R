@@ -36,7 +36,16 @@ showtext_auto()
 # データは独立同一分布である
 iris = iris |> as_tibble()
 
+iris |> 
+  group_by(Species) |> 
+  mutate(Sepal.Length = cut(Sepal.Length, breaks = 3,
+                            labels = c("S", "M", "L"))) |> 
+  group_by(Species, Sepal.Length) |> 
+  summarise(n = length(Petal.Length))
+
+
 iris = iris |> 
+  group_by(Species) |> 
   mutate(Sepal.Length = cut(Sepal.Length, breaks = 3,
                             labels = c("S", "M", "L"))) |> 
   select(Species, Sepal.Length, Petal.Length)
@@ -51,10 +60,16 @@ ggplot(iris) +
 # （３）Speciesごと標準化残渣の散布図
 # （４）Sepal.Lengthごと標準化残渣の散布図
 
+iris |> 
+  group_by(Species, Sepal.Length) |> 
+  summarise(n = length(Petal.Length))
+
 m0 = lm(Petal.Length ~ 1, data = iris)
 m1 = lm(Petal.Length ~ Species, data = iris)
 m2 = lm(Petal.Length ~ Species + Sepal.Length, data = iris)
 m3 = lm(Petal.Length ~ Species * Sepal.Length, data = iris)
+
+
 
 # （１）二元配置分散分析
 anova(m0, m1, m2, m3, test = "F")
