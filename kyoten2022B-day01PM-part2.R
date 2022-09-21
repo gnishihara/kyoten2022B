@@ -57,9 +57,24 @@ ggplot() +
              data = iris)
 
 
+m0 = lm(Petal.Length ~ 1, data = iris)
+m1 = lm(Petal.Length ~ Sepal.Length, data = iris)
+m2 = lm(Petal.Length ~ Sepal.Length + Species, data = iris)
+m3 = lm(Petal.Length ~ Sepal.Length * Species, data = iris)
+
+anova(m0, m1, m2, m3, test = "F")
+
+fortify(m3) |> as_tibble() |> 
+  ggplot() + 
+  geom_qq(aes(sample = .stdresid)) +
+  geom_qq_line(aes(sample = .stdresid))
 
 
-
+# キムモデルの場合、残渣は正規分布に従わない
+fortify(m0) |> as_tibble() |> 
+  ggplot() + 
+  geom_qq(aes(sample = .stdresid)) +
+  geom_qq_line(aes(sample = .stdresid))
 
 
 
