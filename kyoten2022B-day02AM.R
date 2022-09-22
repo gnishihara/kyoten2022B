@@ -96,10 +96,18 @@ Anova(m0, mf, test = "F", type = "III")  # Type-III 平方和
 AIC(m0, mf)
 
 
+# 選んだモデルの診断図
 
+## 標準化残渣の正規性を確認する
+fortify(mf) |> 
+  ggplot() +
+  geom_histogram(aes(x = .stdresid, y = ..density..)) + 
+  stat_function(fun = dnorm, color = "red")
 
-
-
+fortify(mf) |> 
+  ggplot() + 
+  geom_qq(aes(sample = .stdresid)) + 
+  geom_qq_line(aes(sample = .stdresid))
 
 
 
