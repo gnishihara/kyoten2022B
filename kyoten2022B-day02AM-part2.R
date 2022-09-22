@@ -141,8 +141,8 @@ fgala |>
 
 # 診断図の使う残渣は ダンスミス残渣（ランダム化残渣）でおこなう
 
-fgala = fortify(gf) |> as_tibble()
-fgala = fgala |> mutate(qresid = statmod::qresiduals(gf))
+fgala = fortify(ga) |> as_tibble()
+fgala = fgala |> mutate(qresid = statmod::qresiduals(ga))
 
 
 ## 標準化残渣の正規性を確認する
@@ -160,8 +160,6 @@ ggplot(fgala) +
 fgala |> 
   pivot_longer(cols = c(logArea, 
                         Nearest, 
-                        Elevation, Nearest, 
-                        Scruz,
                         logAdjacent, Species)) |> 
   ggplot() + 
   geom_point(aes(x = (value),  y = qresid)) + 
@@ -171,7 +169,7 @@ fgala |>
 ## 飛び地・異常値の確認
 ## クックの距離
 
-dof = summary(gf) |> pluck("df") # モデル自由度
+dof = summary(ga) |> pluck("df") # モデル自由度
 threshold = qf(0.5, dof[1], dof[2])
 
 fgala |> 
@@ -183,6 +181,8 @@ fgala |>
              color = "red", linetype = "dashed")
 
 
+## 診断図の結果、どのモデルもNG
+## Poisson 分布を仮定したモデルは このデータにあわない
 
 
 
