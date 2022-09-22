@@ -208,5 +208,140 @@ ga = MASS::glm.nb(Species ~ logAdjacent + logArea + Nearest,
 AIC(g0, gf, ga)
 
 
+summary(ga)
+
+
+# ga モデルの診断図
+
+# 診断図の使う残渣は ダンスミス残渣（ランダム化残渣）でおこなう
+
+fgala = fortify(ga) |> as_tibble()
+fgala = fgala |> mutate(qresid = statmod::qresiduals(ga))
+
+
+## 標準化残渣の正規性を確認する
+ggplot(fgala) +
+  geom_histogram(aes(x = qresid, y = ..density..)) + 
+  stat_function(fun = dnorm, color = "red")
+
+ggplot(fgala) + 
+  geom_qq(aes(sample = qresid)) + 
+  geom_qq_line(aes(sample = qresid))
+
+
+## 標準化残渣と他の変数との関係
+
+fgala |> 
+  pivot_longer(cols = c(logArea, 
+                        Nearest, 
+                        logAdjacent, Species)) |> 
+  ggplot() + 
+  geom_point(aes(x = (value),  y = qresid)) + 
+  geom_smooth(aes(x = (value), y = qresid)) + 
+  facet_wrap(vars(name), scales = "free")
+
+
+fgala |> 
+  pivot_longer(cols = c(logArea, 
+                        Nearest, 
+                        logAdjacent, Species)) |> 
+  ggplot() + 
+  geom_point(aes(x = (value),  y = sqrt(abs(qresid)))) + 
+  geom_smooth(aes(x = (value), y = sqrt(abs(qresid)))) + 
+  facet_wrap(vars(name), scales = "free")
+
+## 飛び地・異常値の確認
+## クックの距離
+
+dof = summary(ga) |> pluck("df") # モデル自由度
+
+threshold = qf(0.5, dof[1], dof[2])
+
+fgala |> 
+  mutate(n = 1:n(), .before = Species) |> 
+  ggplot() + 
+  geom_point(aes(x = n,
+                 y  =.cooksd)) +
+  geom_hline(yintercept = threshold, 
+             color = "red", linetype = "dashed")
+
+
+
+
+summary(ga)
+
+
+## 他の変数をはずしてもいい？
+
+# b モデル
+gb = MASS::glm.nb(Species ~ logArea + Nearest, 
+                  data = gala, link = "log")
+# c モデル
+gc = MASS::glm.nb(Species ~ logArea, 
+                  data = gala, link = "log")
+
+AIC(g0, gf, ga, gb, gc) |> 
+  as_tibble(rownames = "model") |> 
+  arrange(sort(AIC))
+
+summary(gb)
+summary(gc)
+
+
+
+# gg モデルの診断図
+
+# 診断図の使う残渣は ダンスミス残渣（ランダム化残渣）でおこなう
+
+fgala = fortify(ga) |> as_tibble()
+fgala = fgala |> mutate(qresid = statmod::qresiduals(ga))
+
+
+## 標準化残渣の正規性を確認する
+ggplot(fgala) +
+  geom_histogram(aes(x = qresid, y = ..density..)) + 
+  stat_function(fun = dnorm, color = "red")
+
+ggplot(fgala) + 
+  geom_qq(aes(sample = qresid)) + 
+  geom_qq_line(aes(sample = qresid))
+
+
+## 標準化残渣と他の変数との関係
+
+fgala |> 
+  pivot_longer(cols = c(logArea, 
+                        Nearest, 
+                        logAdjacent, Species)) |> 
+  ggplot() + 
+  geom_point(aes(x = (value),  y = qresid)) + 
+  geom_smooth(aes(x = (value), y = qresid)) + 
+  facet_wrap(vars(name), scales = "free")
+
+
+fgala |> 
+  pivot_longer(cols = c(logArea, 
+                        Nearest, 
+                        logAdjacent, Species)) |> 
+  ggplot() + 
+  geom_point(aes(x = (value),  y = sqrt(abs(qresid)))) + 
+  geom_smooth(aes(x = (value), y = sqrt(abs(qresid)))) + 
+  facet_wrap(vars(name), scales = "free")
+
+## 飛び地・異常値の確認
+## クックの距離
+
+dof = summary(ga) |> pluck("df") # モデル自由度
+
+threshold = qf(0.5, dof[1], dof[2])
+
+fgala |> 
+  mutate(n = 1:n(), .before = Species) |> 
+  ggplot() + 
+  geom_point(aes(x = n,
+                 y  =.cooksd)) +
+  geom_hline(yintercept = threshold, 
+             color = "red", linetype = "dashed")
+
 
 
