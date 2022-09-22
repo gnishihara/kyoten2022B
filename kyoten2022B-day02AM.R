@@ -110,6 +110,33 @@ fortify(mf) |>
   geom_qq_line(aes(sample = .stdresid))
 
 
+## 標準化残渣と他の変数との関係
+
+
+
+fortify(mf) |> 
+  pivot_longer(cols = c(Area, Elevation,
+                        Nearest, Scruz,
+                        Adjacent, Species)) |> 
+  ggplot() + 
+  geom_point(aes(x = log(value), y = .stdresid)) + 
+  facet_wrap(vars(name), scales = "free")
+
+# 分散拡大係数 (Variance Inflation Factor)
+# VIF = 1 / (1 - R^2)
+# VIF > 10 多重共線性の問題をおこしている
+vif(mf)
+
+# 応答変数のログ変換
+gala = gala |> 
+  mutate(logSpecies = log(Species))
+
+
+
+
+
+
+
 
 
 
