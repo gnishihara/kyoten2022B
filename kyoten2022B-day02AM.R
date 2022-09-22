@@ -242,3 +242,28 @@ fortify(ma) |> as_tibble() |>
 
 
 
+# もう一度データを可視化して確認
+gala |> 
+  pivot_longer(cols = c(Area, Nearest, Adjacent)) |> 
+  ggplot() + 
+  geom_point(aes(x = value, y = logSpecies)) + 
+  facet_wrap(vars(name), scales = "free")
+
+
+# もう一度データを可視化して確認
+gala |> 
+  mutate(logArea = log(Area),
+         logAdjacent = log(Adjacent)) |> 
+  pivot_longer(cols = c(logArea, Nearest, logAdjacent)) |> 
+  ggplot() + 
+  geom_point(aes(x = value, y = logSpecies)) + 
+  facet_wrap(vars(name), scales = "free")
+
+
+
+
+gala = gala |> 
+  mutate(logArea = log(Area),
+         logAdjacent = log(Adjacent)) 
+
+
