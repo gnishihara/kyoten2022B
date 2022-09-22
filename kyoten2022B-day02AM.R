@@ -202,7 +202,43 @@ ma = lm(logSpecies ~ Area + Nearest + Adjacent,
 
 AIC(m0, ma, mf)
 
+# 選んだモデルの診断図
 
+## 標準化残渣の正規性を確認する
+fortify(ma) |> 
+  ggplot() +
+  geom_histogram(aes(x = .stdresid, y = ..density..)) + 
+  stat_function(fun = dnorm, color = "red")
+
+fortify(ma) |> 
+  ggplot() + 
+  geom_qq(aes(sample = .stdresid)) + 
+  geom_qq_line(aes(sample = .stdresid))
+
+
+## 標準化残渣と他の変数との関係
+
+fortify(ma) |> 
+  pivot_longer(cols = c(Area, 
+                        Nearest, 
+                        Adjacent, logSpecies)) |> 
+  ggplot() + 
+  geom_point(aes(x = (value), y = .stdresid)) + 
+  facet_wrap(vars(name), scales = "free")
+
+## 飛び地・異常値の確認
+## クックの距離
+
+dof = summary(ma) |> pluck("df") # モデル自由度
+threshold = qf(0.5, dof[1], dof[2])
+
+fortify(ma) |> as_tibble() |> 
+  mutate(n = 1:n(), .before = logSpecies) |> 
+  ggplot() + 
+  geom_point(aes(x = n,
+                 y  =.cooksd)) +
+  geom_hline(yintercept = threshold, 
+             color = "red", linetype = "dashed")
 
 
 
