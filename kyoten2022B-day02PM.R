@@ -67,19 +67,57 @@ tmp = tibble(light = rep("アルミホイル",3),
              ppfd =  rep(0, 3),
              day = 1:3)
 
+lightdata = 
+  bind_rows(lightdata, tmp) |> 
+  mutate(light = factor(light), 
+         day = factor(day))
 
 
+# 溶存酸素濃度のデータ
+
+mgldata = mgldata |> unnest(data) |> 
+  select(day,
+         han = matches("班"), 
+         sample = matches("サンプル"),
+         min = matches("時間"),
+         mgl = matches("mg"),
+         temperature = matches("温"),
+         light = matches("光"),)
 
 
+seaweed = seaweed |> unnest(data) |> 
+  select(day, 
+         han = matches("班"),
+         sample = matches("サンプル"),
+         vol = matches("ml"),
+         gww = matches("湿"),
+         seaweed = "海藻")
 
 
+dset = full_join(mgldata, seaweed,
+          by = c("day", "han", "sample"))
+
+dset |> 
+  ggplot() +
+  geom_point(aes(x = min, y = mgl)) + 
+  facet_grid(rows = vars(light),
+             cols = vars(seaweed))
+
+# 光合成速度を求める関数
+
+calculate_rate = function(data) {
+  z = lm(mgl ~ min, data = data)
+  vol = data$vol[1]
+  gww = data$gww[1]
+  
+  coefficients(z)[2]  * vol / gww
+}
 
 
-
-
-
-
-
+dset = dset |> 
+  group_nest(day, han, sample, seaweed, light) |> 
+  mutate(rate = map(data, calculate_rate)) |> 
+  unnest(rate)
 
 
 
