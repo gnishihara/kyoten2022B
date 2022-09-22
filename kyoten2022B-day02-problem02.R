@@ -187,6 +187,7 @@ dset |>
   ggplot() +
   geom_point(aes(x = log(value), y = qresid)) +
   facet_wrap(vars(name), scales = "free")
+
 dof = summary(g3) |> pluck("df") # モデル自由度
 threshold = qf(0.5, dof[1], dof[2])
 dset |>
