@@ -119,9 +119,44 @@ dset = dset |>
   mutate(rate = map(data, calculate_rate)) |> 
   unnest(rate)
 
+dset = dset |> 
+  select(light, seaweed, han, sample, rate)
+
+dset = dset |> 
+  mutate(light = factor(light),
+         seaweed = factor(seaweed))
+
+alldata = full_join(dset, lightdata,
+          by = c("light")) |> 
+  select(seaweed, ppfd, rate)
+
+ggplot(alldata) + 
+  geom_point(aes(x = ppfd, y = rate, color = seaweed))
 
 
+# 光合成光モデル
+pimodel = function(ppfd, pmax, rd, alpha) {
+  pmax * (1 - exp(-alpha / pmax * ppfd)) - rd
+}
 
+
+preview(rate ~ pimodel(ppfd, pmax, rd, alpha),
+        data = alldata,
+        variable = 2,
+        start = list(pmax = 10, alpha = 0.1, rd = 0.5))
+
+
+m1 = nls(rate ~ pimodel(ppfd, pmax, rd, alpha),
+    data = alldata,
+    start = list(pmax = 10, alpha = 0.1, rd = 0.5))
+
+pdata = alldata |> 
+  expand(ppfd = modelr::seq_range(ppfd, n = 21)) |> 
+  modelr::add_predictions(m1)
+
+ggplot(alldata) + 
+  geom_point(aes(x = ppfd, y = rate, color = seaweed)) +
+  geom_line(aes(x = ppfd, y = pred), data = pdata)
 
 
 
