@@ -161,6 +161,48 @@ ggplot(alldata) +
 
 
 
+# 残渣たい期待値
+alldata |> 
+  modelr::add_residuals(m1) |> 
+  modelr::add_predictions(m1) |> 
+  ggplot() +
+  geom_point(aes(x = pred,
+                 y = resid))
+
+alldata |> 
+  modelr::add_residuals(m1) |> 
+  modelr::add_predictions(m1) |> 
+  ggplot() +
+  geom_point(aes(x = pred,
+                 y = resid)) +
+  facet_wrap(vars(seaweed))
+
+# 残渣たい期待値
+alldata |> 
+  modelr::add_residuals(m1) |> 
+  modelr::add_predictions(m1) |> 
+  ggplot() +
+  geom_point(aes(x = pred,
+                 y = sqrt(abs(resid))))
+
+alldata |> 
+  modelr::add_residuals(m1) |> 
+  modelr::add_predictions(m1) |> 
+  ggplot() +
+  geom_point(aes(x = pred,
+                 y = sqrt(abs(resid)))) +
+  facet_wrap(vars(seaweed))
+
+
+
+
+
+
+
+
+
+
+
 
 
 
