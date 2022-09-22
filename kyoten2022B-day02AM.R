@@ -53,7 +53,35 @@ gala |>
   ggplot() + 
   geom_col(aes(y = Island,
                x = value)) +
-  facet_wrap(facets = vars(name))
+  facet_wrap(facets = vars(name), scales = "free")
+
+
+
+gala = gala |> select(-Endemics)
+gala
+
+
+# 多重共線性の問題 
+
+# 変数ごとの総関係数
+gala |> select(-Island) |> cor()
+
+
+# Species と 各変数の関係
+
+
+gala |> 
+  pivot_longer(cols = c(Area, Elevation,
+                        Nearest, Scruz,
+                        Adjacent)) |> 
+  ggplot() + 
+  geom_point(aes(x = value, y = Species)) + 
+  facet_wrap(vars(name), scales = "free")
+
+
+
+
+
 
 
 
