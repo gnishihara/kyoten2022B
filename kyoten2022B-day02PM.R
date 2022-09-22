@@ -267,7 +267,12 @@ ggplot(alldata) +
              alpha = 0.5,
              show.legend = F) +
   geom_line(aes(x = ppfd, y = pred), data = pdata,
-            size = 1) +
+            size = 1.5,
+            color = "white",
+            show.legend = F) +
+  geom_line(aes(x = ppfd, y = pred, color = seaweed), data = pdata,
+            size = 1,
+            show.legend = F) +
   geom_text(aes(x = 400, y = 20, label = label),
             data = panellabel) +
   scale_x_continuous(name = parse(text = xlabel),
@@ -283,8 +288,13 @@ ggplot(alldata) +
 
 pdfname = "plot2.pdf"
 
+ggsave(pdfname,
+       width = 80, 
+       height = 80*1.5, 
+       units = "mm")
 
 
-
+summary(m2)
+# 非線形モデルには決定係数は存在しない！！ R^2
 
 
