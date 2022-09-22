@@ -133,17 +133,74 @@ gala = gala |>
 
 
 
+gala |> 
+  pivot_longer(cols = c(Area, Elevation,
+                        Nearest, Scruz,
+                        Adjacent)) |> 
+  ggplot() + 
+  geom_point(aes(x = value, y = logSpecies)) + 
+  facet_wrap(vars(name), scales = "free")
+
+
+
+m0 = lm(logSpecies ~ 1, data = gala)
+mf = lm(logSpecies ~ Area + Adjacent + Elevation + Nearest + Scruz, data = gala)
+
+AIC(m0, mf)
+vif(mf)
+
+# 選んだモデルの診断図
+
+## 標準化残渣の正規性を確認する
+fortify(mf) |> 
+  ggplot() +
+  geom_histogram(aes(x = .stdresid, y = ..density..)) + 
+  stat_function(fun = dnorm, color = "red")
+
+fortify(mf) |> 
+  ggplot() + 
+  geom_qq(aes(sample = .stdresid)) + 
+  geom_qq_line(aes(sample = .stdresid))
+
+
+## 標準化残渣と他の変数との関係
+
+fortify(mf) |> 
+  pivot_longer(cols = c(Area, Elevation,
+                        Nearest, Scruz,
+                        Adjacent, Species)) |> 
+  ggplot() + 
+  geom_point(aes(x = (value), y = .stdresid)) + 
+  facet_wrap(vars(name), scales = "free")
+
+## 飛び地・異常値の確認
+## クックの距離
+
+dof = summary(mf) |> pluck("df") # モデル自由度
+threshold = qf(0.5, dof[1], dof[2])
+
+fortify(mf) |> as_tibble() |> 
+  mutate(n = 1:n(), .before = Species) |> 
+  ggplot() + 
+  geom_point(aes(x = n,
+                 y  =.cooksd)) +
+  geom_hline(yintercept = threshold, 
+             color = "red", linetype = "dashed")
 
 
 
 
+# 説明変数ごとの総関係数
+gala |> select(-Island,
+               -Species,
+               -logSpecies) |> cor()
 
+# 相関関係をみながら、重複していそうな変数をはずす
 
+ma = lm(logSpecies ~ Area + Nearest + Adjacent,
+        data = gala)
 
-
-
-
-
+AIC(m0, ma, mf)
 
 
 
