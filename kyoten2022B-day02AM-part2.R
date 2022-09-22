@@ -62,12 +62,78 @@ gala
 
 
 ## GLM (一般化線形モデル)　を用いた解析
+# 線形予測子： eta = b0 + b1 x1 + b2 x2 + ... + bn xn
+# リンク関数：g(mu) = eta or mu = g^-1(eta)
+# 分布：離散型(Poisson, binomial, ...)と連続型(Gaussian, Gamma, ...)
 
 gala = gala |> 
   mutate(logArea = log(Area),
          logAdjacent = log(Adjacent),
          logSpecies = log(Species))
 
+# Poisson-GLM
+# Species ~ Pois(mu)
+# E(Species) = mu
+# mu = exp(eta)
+# eta = b0 + b1 logArea + b2 logAdjacent + b3 Nearest
+# 
+# log(Species) = log(mu) = eta :=: b0 + b1 logArea + b2 logAdjacent + b3 Nearest
+
+# ヌルモデル
+g0 = glm(Species ~ 1, data = gala, family = poisson(link = "log"))
+# フルモデル
+gf = glm(Species ~ logAdjacent + logArea + Elevation + Nearest + Scruz, 
+         data = gala, family = poisson(link = "log"))
+# a モデル
+ga = glm(Species ~ logAdjacent + logArea + Nearest, 
+         data = gala, family = poisson(link = "log"))
+
+
+AIC(g0, gf, ga)
+
+
+# 診断図の使う残渣は ダンスミス残渣（ランダム化残渣）でおこなう
+
+fgala = fortify(gf) |> as_tibble()
+fgala = fgala |> mutate(qresid = statmod::qresiduals(gf))
+
+
+## 標準化残渣の正規性を確認する
+ggplot(fgala) +
+  geom_histogram(aes(x = qresid, y = ..density..)) + 
+  stat_function(fun = dnorm, color = "red")
+
+ggplot(fgala) + 
+  geom_qq(aes(sample = qresid)) + 
+  geom_qq_line(aes(sample = qresid))
+
+
+## 標準化残渣と他の変数との関係
+
+fgala |> 
+  pivot_longer(cols = c(logArea, 
+                        Nearest, 
+                        Elevation, Nearest, 
+                        Scruz,
+                        logAdjacent, Species)) |> 
+  ggplot() + 
+  geom_point(aes(x = (value),  y = qresid)) + 
+  geom_smooth(aes(x = (value), y = qresid)) + 
+  facet_wrap(vars(name), scales = "free")
+
+## 飛び地・異常値の確認
+## クックの距離
+
+dof = summary(mb) |> pluck("df") # モデル自由度
+threshold = qf(0.5, dof[1], dof[2])
+
+fortify(mb) |> as_tibble() |> 
+  mutate(n = 1:n(), .before = logSpecies) |> 
+  ggplot() + 
+  geom_point(aes(x = n,
+                 y  =.cooksd)) +
+  geom_hline(yintercept = threshold, 
+             color = "red", linetype = "dashed")
 
 
 
