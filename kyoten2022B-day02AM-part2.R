@@ -293,8 +293,8 @@ summary(gc)
 
 # 診断図の使う残渣は ダンスミス残渣（ランダム化残渣）でおこなう
 
-fgala = fortify(ga) |> as_tibble()
-fgala = fgala |> mutate(qresid = statmod::qresiduals(ga))
+fgala = fortify(gc) |> as_tibble()
+fgala = fgala |> mutate(qresid = statmod::qresiduals(gc))
 
 
 ## 標準化残渣の正規性を確認する
@@ -310,28 +310,30 @@ ggplot(fgala) +
 ## 標準化残渣と他の変数との関係
 
 fgala |> 
+  mutate(logSpecies = log(Species)) |> 
   pivot_longer(cols = c(logArea, 
-                        Nearest, 
-                        logAdjacent, Species)) |> 
+                        logSpecies,
+                        Species)) |> 
   ggplot() + 
   geom_point(aes(x = (value),  y = qresid)) + 
   geom_smooth(aes(x = (value), y = qresid)) + 
-  facet_wrap(vars(name), scales = "free")
-
+  facet_wrap(vars(name), scales = "free", 
+             ncol = 1)
 
 fgala |> 
+  mutate(logSpecies = log(Species)) |> 
   pivot_longer(cols = c(logArea, 
-                        Nearest, 
-                        logAdjacent, Species)) |> 
+                        logSpecies,
+                        Species)) |> 
   ggplot() + 
   geom_point(aes(x = (value),  y = sqrt(abs(qresid)))) + 
   geom_smooth(aes(x = (value), y = sqrt(abs(qresid)))) + 
-  facet_wrap(vars(name), scales = "free")
+  facet_wrap(vars(name), scales = "free", ncol = 1)
 
 ## 飛び地・異常値の確認
 ## クックの距離
 
-dof = summary(ga) |> pluck("df") # モデル自由度
+dof = summary(gc) |> pluck("df") # モデル自由度
 
 threshold = qf(0.5, dof[1], dof[2])
 
@@ -342,6 +344,106 @@ fgala |>
                  y  =.cooksd)) +
   geom_hline(yintercept = threshold, 
              color = "red", linetype = "dashed")
+
+summary(gc)
+
+
+gala |> pull(Area) |> range() |> log()
+
+pgala = 
+  tibble(logArea = seq(-4.6, 8.4, length = 11)) |> 
+  mutate(Area = exp(logArea))
+
+tmp = predict(gc, newdata = pgala,
+              se = T) |> as_tibble()
+
+pgala = bind_cols(pgala, tmp) |> 
+  mutate(predict = exp(fit)) |> 
+  mutate(l95 = exp(fit - 1.96*se.fit),
+         u95 = exp(fit + 1.96*se.fit),
+         lse = fit - 1.96*se.fit,
+         use = fit + 1.96*se.fit)
+
+# natural - scale の結果
+gala |> 
+  mutate(logArea = log(Area)) |> 
+  ggplot() + 
+  geom_ribbon(aes(x = logArea,
+                  ymin = l95,
+                  ymax = u95),
+              data = pgala,
+              alpha = 0.5) +
+  geom_point(aes(x = logArea, 
+                 y = Species)) +
+  geom_line(aes(x = logArea,
+                y = predict),
+            data = pgala)
+
+
+gala |> 
+  mutate(logArea = log(Area)) |> 
+  ggplot() + 
+  geom_ribbon(aes(x = Area,
+                  ymin = l95,
+                  ymax = u95),
+              data = pgala,
+              alpha = 0.5) +
+  geom_point(aes(x = Area, 
+                 y = Species)) +
+  geom_line(aes(x = Area,
+                y = predict),
+            data = pgala)
+
+
+# link - scale の結果
+gala |> 
+  mutate(logArea = log(Area)) |> 
+  ggplot() + 
+  geom_smooth(aes(x = logArea,
+                  y = log(Species)),
+              method = "lm",
+              formula = y~x,
+              color = "orangered",
+              size = 2,
+             data = gala) +
+  geom_ribbon(aes(x = logArea,
+                  ymin = lse,
+                  ymax = use),
+              data = pgala,
+              alpha = 0.5) +
+  geom_point(aes(x = logArea, 
+                 y = log(Species))) +
+  geom_line(aes(x = logArea,
+                y = fit),
+            size = 2,
+            data = pgala) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
