@@ -79,12 +79,21 @@ gala |>
   facet_wrap(vars(name), scales = "free")
 
 
+# 単純な線形モデル
+# 正規分布に従うと仮定する
 
+# H0: ヌルモデル (m0)
+# HF: フルモデル (mf)
+m0 = lm(Species ~ 1, data = gala)
+mf = lm(Species ~ Area + Adjacent + Elevation + Nearest + Scruz, data = gala)
 
+# ここでやっている検定は F検定
+anova(m0, mf, test = "F")                # Type-I 平方和
+Anova(m0, mf, test = "F", type = "III")  # Type-III 平方和
 
-
-
-
+# 情報理論　AIC
+# AIC の低い値のモデルを選ぶ
+AIC(m0, mf)
 
 
 
