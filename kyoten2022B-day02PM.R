@@ -195,11 +195,93 @@ alldata |>
 
 
 
+################
+# 海藻ごとにモデルをあてはめる
+
+
+m1 = nls(rate ~ pimodel(ppfd, pmax, rd, alpha),
+         data = alldata,
+         start = list(pmax = 10, alpha = 0.1, rd = 0.5))
+
+START = lapply(coefficients(m1), rep, 3)
+
+m2 = nls(rate ~ pimodel(ppfd, 
+                        pmax[seaweed], 
+                        rd[seaweed], 
+                        alpha[seaweed]),
+         data = alldata,
+         start = START)
+summary(m2)
+
+# 残渣たい期待値
+alldata |> 
+  modelr::add_residuals(m2) |> 
+  modelr::add_predictions(m2) |> 
+  ggplot() +
+  geom_point(aes(x = pred,
+                 y = resid)) +
+  facet_wrap(vars(seaweed))
+
+alldata |> 
+  modelr::add_residuals(m2) |> 
+  modelr::add_predictions(m2) |> 
+  ggplot() +
+  geom_point(aes(x = pred,
+                 y = sqrt(abs(resid)))) +
+  geom_smooth(aes(x = pred,
+                  y =  sqrt(abs(resid)))) +
+ facet_wrap(vars(seaweed), scales = "free_x")
+
+
+AIC(m1, m2)
+
+
+fit_model = function(data) {
+  nls(rate ~ pimodel(ppfd, pmax, rd, alpha),
+      data = data,
+      start = list(pmax = 10, alpha = 0.1, rd = 0.5))
+}
+
+
+pdata = alldata |> 
+  expand(ppfd = modelr::seq_range(ppfd, n = 21),
+         seaweed) |> 
+  modelr::add_predictions(m2)
 
 
 
+xlabel = "PPFD~(mu*mol~photons~m^{-2}~s^{-1})"
+ylabel = "'Net photosynthesis rate'~~(mg~O[2]~g[ww]^{-1}~min^{-1})"
 
+panellabel = alldata |> 
+  select(seaweed) |> 
+  distinct() |> 
+  mutate(label = c("(C)", "(B)", "(A)"))
 
+library(lemon)
+
+theme_pubr(base_family = "notosansjp") |> theme_set()
+
+ggplot(alldata) + 
+  geom_point(aes(x = ppfd, y = rate, color = seaweed),
+             alpha = 0.5,
+             show.legend = F) +
+  geom_line(aes(x = ppfd, y = pred), data = pdata,
+            size = 1) +
+  geom_text(aes(x = 400, y = 20, label = label),
+            data = panellabel) +
+  scale_x_continuous(name = parse(text = xlabel),
+                     limits = c(0, 400)) + 
+  scale_y_continuous(name = parse(text = ylabel),
+                     limits = c(0, 20)) + 
+  scale_color_viridis_d(end = 0.8) +
+  facet_rep_wrap(vars(seaweed), ncol = 1) +
+  theme(
+    strip.text = element_blank(),
+    strip.background = element_blank()
+  )
+
+pdfname = "plot2.pdf"
 
 
 
