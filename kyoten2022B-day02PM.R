@@ -52,6 +52,34 @@ lightdata = tibble(fnames = c(spreadsheet1, spreadsheet2, spreadsheet3), day = 1
   select(-fnames)
 
 
+# 光環境データ
+
+lightdata = lightdata |> 
+  unnest(data) |> 
+  select(day,
+         light = "光環境",
+         sample = matches("サンプル"),
+         ppfd = matches("photons")) |> 
+  group_by(day, light) |> 
+  summarise(ppfd = mean(ppfd))
+
+tmp = tibble(light = rep("アルミホイル",3), 
+             ppfd =  rep(0, 3),
+             day = 1:3)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
