@@ -33,14 +33,27 @@ showtext_auto()
 # faraway パッケージが必要です。
 # install.packages("faraway")
 data(gala, package = "faraway")
-
-
 class(gala)
 names(gala)
-rownames(gala)
+island = rownames(gala)
+
+# Species: 植物の種数
+# Endemics: 島の固有種の種数
+# Area: 島の面積
+# Adjacent: 一番近い島の面積
+# Elevation: 高度
+# Nearest: 一番近い島からの距離
+# Scruz: Scruz島からの距離
 
 gala = gala |> as_tibble()
-gala
+gala = gala |> mutate(Island = island, .before = Species)
+
+gala |> 
+  pivot_longer(cols = !Island) |> 
+  ggplot() + 
+  geom_col(aes(y = Island,
+               x = value)) +
+  facet_wrap(facets = vars(name))
 
 
 
