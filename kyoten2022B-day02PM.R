@@ -42,3 +42,24 @@ spreadsheet3 = "https://docs.google.com/spreadsheets/d/1Im8Qg-ukk8uh_3z4H6IwirTc
 mgldata = tibble(fnames = c(spreadsheet1, spreadsheet2, spreadsheet3), day = 1:3) |> 
   mutate(data = map(fnames, read_sheet, sheet = "光合成データ")) |> 
   select(-fnames)
+
+seaweed = tibble(fnames = c(spreadsheet1, spreadsheet2, spreadsheet3), day = 1:3) |> 
+  mutate(data = map(fnames, read_sheet, sheet = "海藻資料データ"))|> 
+  select(-fnames)
+
+lightdata = tibble(fnames = c(spreadsheet1, spreadsheet2, spreadsheet3), day = 1:3) |> 
+  mutate(data = map(fnames, read_sheet, sheet = "光環境データ"))|> 
+  select(-fnames)
+
+
+
+
+
+
+
+
+
+
+
+
+
