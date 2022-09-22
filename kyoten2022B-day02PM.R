@@ -293,7 +293,6 @@ ggsave(pdfname,
        height = 80*1.5, 
        units = "mm")
 
-
 summary(m2)
 # 非線形モデルには決定係数は存在しない！！ R^2
 
