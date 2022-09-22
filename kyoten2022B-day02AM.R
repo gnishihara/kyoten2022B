@@ -35,6 +35,31 @@ showtext_auto()
 data(gala, package = "faraway")
 
 
+class(gala)
+names(gala)
+rownames(gala)
+
+gala = gala |> as_tibble()
+gala
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
