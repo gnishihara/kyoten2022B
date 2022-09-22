@@ -267,3 +267,66 @@ gala = gala |>
          logAdjacent = log(Adjacent)) 
 
 
+
+# ４かいめのモデル
+
+mb = lm(logSpecies ~ logArea + Nearest + logAdjacent,
+        data = gala)
+
+AIC(m0, ma, mb, mf)
+
+# 選んだモデルの診断図
+
+## 標準化残渣の正規性を確認する
+fortify(mb) |> 
+  ggplot() +
+  geom_histogram(aes(x = .stdresid, y = ..density..)) + 
+  stat_function(fun = dnorm, color = "red")
+
+fortify(mb) |> 
+  ggplot() + 
+  geom_qq(aes(sample = .stdresid)) + 
+  geom_qq_line(aes(sample = .stdresid))
+
+
+## 標準化残渣と他の変数との関係
+
+fortify(mb) |> 
+  pivot_longer(cols = c(logArea, 
+                        Nearest, 
+                        logAdjacent, logSpecies)) |> 
+  ggplot() + 
+  geom_point(aes(x = (value), y = .stdresid)) + 
+  geom_smooth(aes(x = (value), y = .stdresid)) + 
+  facet_wrap(vars(name), scales = "free")
+
+## 飛び地・異常値の確認
+## クックの距離
+
+dof = summary(mb) |> pluck("df") # モデル自由度
+threshold = qf(0.5, dof[1], dof[2])
+
+fortify(mb) |> as_tibble() |> 
+  mutate(n = 1:n(), .before = logSpecies) |> 
+  ggplot() + 
+  geom_point(aes(x = n,
+                 y  =.cooksd)) +
+  geom_hline(yintercept = threshold, 
+             color = "red", linetype = "dashed")
+
+# model mb の AIC がもっとも低い：選択
+# 診断図の結果を確認すると、mb を採択してもいい
+# が、標準化残渣と logSpecies との問題は残っている
+
+m0 = lm(logSpecies ~ 1, data = gala)
+mf = lm(logSpecies ~ Area + Adjacent + Elevation + Nearest + Scruz, data = gala)
+ma = lm(logSpecies ~ Area + Adjacent + Nearest, data = gala)
+mb = lm(logSpecies ~ logArea + logAdjacent + Nearest, data = gala)
+mbx = lm(logSpecies ~ logArea * logAdjacent * Nearest, data = gala)
+summary(mbx)
+
+
+AIC(m0, ma, mb, mf, mbx) |> 
+  as_tibble(rownames = "Model") |> 
+  arrange(AIC)
+
