@@ -184,7 +184,28 @@ fgala |>
 ## 診断図の結果、どのモデルもNG
 ## Poisson 分布を仮定したモデルは このデータにあわない
 
+# Poisson-GLM の場合　過分散(over-dispersion) を確認しましょう
+# Residual deviance の値と degrees-of-freedom の値は
+# 似ていると Poisson GLM は適している
+summary(ga)
 
+# 過分散を考慮した離散型分布：負の二項分布
+# Negative Binomial GLM
+
+MASS::glm.nb()
+
+
+# ヌルモデル
+g0 = MASS::glm.nb(Species ~ 1, data = gala, link = "log")
+# フルモデル
+gf = MASS::glm.nb(Species ~ logAdjacent + logArea + Elevation + Nearest + Scruz, 
+         data = gala, link = "log")
+# a モデル
+ga = MASS::glm.nb(Species ~ logAdjacent + logArea + Nearest, 
+         data = gala, link = "log")
+
+
+AIC(g0, gf, ga)
 
 
 
