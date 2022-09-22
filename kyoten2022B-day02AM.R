@@ -30,5 +30,12 @@ showtext_auto()
 
 ################################################################
 
+# faraway パッケージが必要です。
 # install.packages("faraway")
 data(gala, package = "faraway")
+
+
+
+
+
+
