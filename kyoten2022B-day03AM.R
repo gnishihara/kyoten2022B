@@ -156,7 +156,7 @@ p1 = seaweed |>
 p2 = seaweed |>
   pivot_longer(cols = c(wave, temperature)) |>
   ggplot() +
-  geom_point(aes( x = month, y = value)) +
+  geom_point(aes( x = month, y = value, color = station)) +
   geom_smooth(aes(x = month, y = value),
               method = "gam",
               formula = y ~ s(x)) +
@@ -341,6 +341,11 @@ seaweed |> drop_na() |>
   geom_smooth(aes(x = wave, y = qresid))
 
 AIC(s3, gl3s)
+
+
+
+
+
 
 
 ####################################################################
