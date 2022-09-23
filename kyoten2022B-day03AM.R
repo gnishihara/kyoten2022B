@@ -309,6 +309,7 @@ s3 = gam(
   family = poisson("log")
 )
 
+
 seaweed |> drop_na() |> 
   mutate(
     resid = residuals(s3),
@@ -340,8 +341,56 @@ seaweed |> drop_na() |>
   geom_point(aes(x  = wave, y = qresid)) +
   geom_smooth(aes(x = wave, y = qresid))
 
-AIC(s3, gl3s)
+# s4 を gl3s と比較する
 
+
+s4 = gam(
+  seaweed_sp_richness ~
+    s(temperature) + wave * station,
+  data = seaweed,
+  family = poisson("log")
+)
+
+seaweed |> drop_na() |> 
+  mutate(
+    resid = residuals(s4),
+    qresid = statmod::qresiduals(s4),
+    fit   = fitted(s4)
+  ) |>
+  ggplot() +
+  geom_qq(aes(sample = qresid)) +
+  geom_qq_line(aes(sample = qresid))
+
+
+seaweed |> drop_na() |> 
+  mutate(
+    resid = residuals(s3),
+    qresid = statmod::qresiduals(s3),
+    fit   = fitted(s3)
+  ) |>
+  ggplot() +
+  geom_point(aes(x = temperature, y = qresid)) +
+  geom_smooth(aes(x = temperature, y = qresid)) 
+
+seaweed |> drop_na() |> 
+  mutate(
+    resid = residuals(s3),
+    qresid = statmod::qresiduals(s3),
+    fit   = fitted(s3)
+  ) |>
+  ggplot() +
+  geom_point(aes(x  = wave, y = qresid)) +
+  geom_smooth(aes(x = wave, y = qresid))
+
+AIC(s3, s4, gl3s)
+
+# s3 のAICが一番低いので、s3 採択する
+
+pdata = seaweed |> 
+  expand(station,
+         nesting(wave = modelr::seq_range(wave, n = 5),
+                 temperature = modelr::seq_range(temperature, n = 5))) |> 
+  modelr::add_predictions(s3, type = "response")
 
 
 
