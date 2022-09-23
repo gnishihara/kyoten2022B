@@ -346,7 +346,8 @@ seaweed |> drop_na() |>
 
 s4 = gam(
   seaweed_sp_richness ~
-    s(temperature, k = 6) + wave * station,
+    s(temperature, k = 6) + 
+    s(wave, k = 6) + station,
   data = seaweed,
   family = poisson("log")
 )
@@ -438,8 +439,9 @@ ggplot() +
   facet_wrap(vars(station))
 
 s3 |> summary()
+s4 |> summary()
 
-layout(1)
+layout(matrix(c(1, 2), ncol = 2))
 plot(s3)
 
 
