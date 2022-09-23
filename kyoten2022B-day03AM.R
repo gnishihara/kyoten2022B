@@ -66,7 +66,14 @@ ggplot(maaji) +
 
 ggplot(maaji) + 
   geom_point(aes(x = temperature, y = size)) +
-  scale_y_continuous(limits = c(0, 40)) 
+  scale_y_continuous(limits = c(0, 40)) +
+  geom_smooth(aes(x = temperature, y = size, color = "TP"),
+              method = "gam",
+              formula = y ~ s(x, k = 6)) +
+  geom_smooth(aes(x = temperature, y = size, color = "CC"),
+              method = "gam",
+              formula = y ~ s(x, k = 6, bs = "cc"),
+              method.args = list(knots = list(month = c(0.5, 12.5))))
 
 ggplot(maaji) + 
   geom_point(aes(x = date, y = size)) +
@@ -81,26 +88,44 @@ ggplot(maaji) +
   scale_y_continuous(limits = c(0, 40)) +
   scale_x_continuous(limits = c(1, 12),
                      breaks = 1:12) +
+  geom_smooth(aes(x = month, y = size, color = "GLM"),
+              method = "glm",
+              formula = y ~ x) +
   geom_smooth(aes(x = month, y = size, color = "TP"),
               method = "gam",
-              formula = y ~ s(x)) +
+              formula = y ~ s(x, k = 6)) +
   geom_smooth(aes(x = month, y = size, color = "CC"),
               method = "gam",
-              formula = y ~ s(x, bs = "cc"),
+              formula = y ~ s(x, k = 6, bs = "cc"),
               method.args = list(knots = list(month = c(0.5, 12.5))))
 
 # mgcv::gam()
 # Generalized Additive Model
 # 一般化加法モデル
-g1 = gam(size ~ s(month), data = maaji, family = gaussian())
-
-g2 = gam(size ~ s(month, bs = "cc"), 
+g0 = glm(size ~ month, data = maaji, family = gaussian())
+g1 = gam(size ~ s(month, k = 3), data = maaji, family = gaussian())
+g2 = gam(size ~ s(month, k = 3, bs = "cc"), 
          knots = list(month = c(0.5, 12.5)),
          data = maaji, family = gaussian())
 
+summary(g0)
 summary(g1)
 summary(g2)
 
+AIC(g0, g1, g2)
+
+
+gt0 = glm(size ~ temperature, data = maaji, family = gaussian())
+gt1 = gam(size ~ s(temperature, k = 3), data = maaji, family = gaussian())
+gt2 = gam(size ~ s(temperature, k = 3, bs = "cc"), 
+         knots = list(month = c(0.5, 12.5)),
+         data = maaji, family = gaussian())
+
+summary(gt0)
+summary(gt1)
+summary(gt2)
+AIC(gt0, gt1, gt2)
+################################################################################
 
 dset = read_csv("data/fukue_jma.csv")
 
