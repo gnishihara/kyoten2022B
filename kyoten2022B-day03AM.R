@@ -153,16 +153,16 @@ p1 = seaweed |>
               formula = y ~ s(x)) +
   facet_wrap(vars(name))
 
-p1 = seaweed |>
+p2 = seaweed |>
   pivot_longer(cols = c(wave, temperature)) |>
   ggplot() +
-  geom_point(aes(x = value, y = seaweed_sp_richness)) +
-  geom_smooth(aes(x = value, y = seaweed_sp_richness),
+  geom_point(aes( x = month, y = value)) +
+  geom_smooth(aes(x = month, y = value),
               method = "gam",
               formula = y ~ s(x)) +
   facet_wrap(vars(name))
 
-p2 = ggplot(seaweed) +
+p3 = ggplot(seaweed) +
   geom_point(aes(
     x = month,
     y = seaweed_sp_richness,
@@ -180,7 +180,7 @@ p2 = ggplot(seaweed) +
                        knots = list(month = c(0.5, 12.5))),
     se = F
   )
-p1 + p2 +plot_layout(ncol = 1)
+p1 + p2 + p3 + plot_layout(ncol = 1)
 
 
 # QQプロットにより、モデルを却下
