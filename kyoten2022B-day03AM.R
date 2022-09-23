@@ -68,10 +68,27 @@ ggplot(maaji) +
   geom_point(aes(x = temperature, y = size)) +
   scale_y_continuous(limits = c(0, 40)) 
 
+ggplot(maaji) + 
+  geom_point(aes(x = date, y = size)) +
+  scale_y_continuous(limits = c(0, 40)) 
 
 
 
+# GAM を ggplot であてはめる
+# 仮かいせき
+ggplot(maaji) + 
+  geom_point(aes(x = month, y = size)) +
+  scale_y_continuous(limits = c(0, 40)) +
+  scale_x_continuous(limits = c(0, 13),
+                     breaks = 1:12) +
+  geom_smooth(aes(x = month, y = size),
+              method = "gam",
+              formula = y ~ s(x))
 
+# mgcv::gam()
+g1 = gam(size ~ s(month), data = maaji)
+
+summary(g1)
 
 
 dset = read_csv("data/fukue_jma.csv")
