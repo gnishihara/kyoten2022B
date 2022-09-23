@@ -34,41 +34,12 @@ showtext_auto()
 
 gs4_deauth()
 maaji = "https://docs.google.com/spreadsheets/d/1zVX7exLAAzWgHPQOSpQ2eeTIltXYhEYHmUT12REid0M/edit?usp=sharing"
-spreadsheet2 = "https://docs.google.com/spreadsheets/d/1RBGytrJa5z7UYOkraqeul7Axhi2LlzjkZsaWyiOMjG0/edit?usp=sharing" 
-spreadsheet3 = "https://docs.google.com/spreadsheets/d/1Im8Qg-ukk8uh_3z4H6IwirTc4nhxPqKrDWrjhK4gZ0o/edit#gid=2099964525"
+seaweed = "https://docs.google.com/spreadsheets/d/1RBGytrJa5z7UYOkraqeul7Axhi2LlzjkZsaWyiOMjG0/edit?usp=sharing" 
+shirogisu = "https://docs.google.com/spreadsheets/d/1rb6WA3wkweOUfcpIziGJm9qdcnfVwOYURY1aUkwmdMM/edit?usp=sharing"
 
-mgldata = tibble(fnames = c(spreadsheet1, spreadsheet2, spreadsheet3), day = 1:3) |> 
-  mutate(data = map(fnames, read_sheet, sheet = "光合成データ")) |> 
-  select(-fnames)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+maaji = read_sheet(maaji)
+seaweed = read_sheet(seaweed)
+shirogisu = read_sheet(shirogisu)
 
 
 
