@@ -13,8 +13,8 @@ library(ggpubr)　　# theme_pubr()
 library(patchwork) # 複数図の結合
 library(magick)    # pdf を png に変換する
 library(showtext)  # フォント埋め込み用
-library(mgcv)
-library(googlesheets4)
+library(mgcv)      # GAM 解析用
+library(googlesheets4) # google のスプレッドシートの読み込み用
 
 ################################################################
 # font_files() |> as_tibble() # システムフォントの閲覧
@@ -37,17 +37,36 @@ maaji = "https://docs.google.com/spreadsheets/d/1zVX7exLAAzWgHPQOSpQ2eeTIltXYhEY
 seaweed = "https://docs.google.com/spreadsheets/d/1RBGytrJa5z7UYOkraqeul7Axhi2LlzjkZsaWyiOMjG0/edit?usp=sharing" 
 shirogisu = "https://docs.google.com/spreadsheets/d/1rb6WA3wkweOUfcpIziGJm9qdcnfVwOYURY1aUkwmdMM/edit?usp=sharing"
 
-maaji = read_sheet(maaji)
-seaweed = read_sheet(seaweed)
-shirogisu = read_sheet(shirogisu)
+maaji = read_sheet(maaji, na = "NA")
+seaweed = read_sheet(seaweed, na = "NA")
+shirogisu = read_sheet(shirogisu, na = "NA")
 
 names(maaji)
 
+maaji |> select(temperature) # temperature に chr と dbl が混ざっている
+
 ggplot(maaji) + 
-  geom_point(aes(x = month, y = size, color = spot)) +
+  geom_point(aes(x = month, y = size)) +
   scale_y_continuous(limits = c(0, 40)) +
   scale_x_continuous(limits = c(0, 13),
                      breaks = 1:12)
+
+ggplot(maaji) + 
+  geom_point(aes(x = depth_range, y = size)) +
+  scale_y_continuous(limits = c(0, 40)) 
+  
+
+ggplot(maaji) + 
+  geom_point(aes(x = dist_from_river, y = size)) +
+  scale_y_continuous(limits = c(0, 40)) 
+
+ggplot(maaji) + 
+  geom_point(aes(x = fetch, y = size)) +
+  scale_y_continuous(limits = c(0, 40)) 
+
+ggplot(maaji) + 
+  geom_point(aes(x = temperature, y = size)) +
+  scale_y_continuous(limits = c(0, 40)) 
 
 
 
