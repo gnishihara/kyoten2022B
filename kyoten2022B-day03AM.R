@@ -153,6 +153,15 @@ p1 = seaweed |>
               formula = y ~ s(x)) +
   facet_wrap(vars(name))
 
+p1 = seaweed |>
+  pivot_longer(cols = c(wave, temperature)) |>
+  ggplot() +
+  geom_point(aes(x = value, y = seaweed_sp_richness)) +
+  geom_smooth(aes(x = value, y = seaweed_sp_richness),
+              method = "gam",
+              formula = y ~ s(x)) +
+  facet_wrap(vars(name))
+
 p2 = ggplot(seaweed) +
   geom_point(aes(
     x = month,
@@ -250,15 +259,89 @@ seaweed |>
 
 summary(g2)
 # モデルに temperature と wave を追加する
-g3 = gam(
+
+gl3s = glm(seaweed_sp_richness ~ temperature * wave * station,
+          data = seaweed,
+          family = poisson("log"))
+gl3p = glm(seaweed_sp_richness ~ temperature * wave,
+          data = seaweed,
+          family = poisson("log"))
+AIC(gl3p, gl3s)
+
+seaweed |> drop_na() |> 
+  mutate(
+    resid = residuals(gl3s),
+    qresid = statmod::qresiduals(gl3s),
+    fit   = fitted(gl3s)
+  ) |>
+  ggplot() +
+  geom_qq(aes(sample = qresid)) +
+  geom_qq_line(aes(sample = qresid))
+  
+
+seaweed |> drop_na() |> 
+  mutate(
+    resid = residuals(gl3s),
+    qresid = statmod::qresiduals(gl3s),
+    fit   = fitted(gl3s)
+  ) |>
+  ggplot() +
+  geom_point(aes(x = temperature, y = qresid)) +
+  geom_smooth(aes(x = temperature, y = qresid)) 
+  
+seaweed |> drop_na() |> 
+  mutate(
+    resid = residuals(gl3s),
+    qresid = statmod::qresiduals(gl3s),
+    fit   = fitted(gl3s)
+  ) |>
+  ggplot() +
+  geom_point(aes(x  = wave, y = qresid)) +
+  geom_smooth(aes(x = wave, y = qresid))
+
+
+
+# s3 を gl3s と比較する
+s3 = gam(
   seaweed_sp_richness ~
-    s(month,
-      bs = "cc",
-      k = 10,
-      by = station) + station,
+    s(temperature) + wave + station,
   data = seaweed,
   family = poisson("log")
 )
+
+seaweed |> drop_na() |> 
+  mutate(
+    resid = residuals(s3),
+    qresid = statmod::qresiduals(s3),
+    fit   = fitted(s3)
+  ) |>
+  ggplot() +
+  geom_qq(aes(sample = qresid)) +
+  geom_qq_line(aes(sample = qresid))
+
+
+seaweed |> drop_na() |> 
+  mutate(
+    resid = residuals(s3),
+    qresid = statmod::qresiduals(s3),
+    fit   = fitted(s3)
+  ) |>
+  ggplot() +
+  geom_point(aes(x = temperature, y = qresid)) +
+  geom_smooth(aes(x = temperature, y = qresid)) 
+
+seaweed |> drop_na() |> 
+  mutate(
+    resid = residuals(s3),
+    qresid = statmod::qresiduals(s3),
+    fit   = fitted(s3)
+  ) |>
+  ggplot() +
+  geom_point(aes(x  = wave, y = qresid)) +
+  geom_smooth(aes(x = wave, y = qresid))
+
+AIC(s3, gl3s)
+
 
 ####################################################################
 dset = read_csv("data/fukue_jma.csv")
