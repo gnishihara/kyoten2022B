@@ -304,7 +304,7 @@ seaweed |> drop_na() |>
 # s3 を gl3s と比較する
 s3 = gam(
   seaweed_sp_richness ~
-    s(temperature) + wave + station,
+    s(temperature, k = 6) + wave + station,
   data = seaweed,
   family = poisson("log")
 )
@@ -346,7 +346,7 @@ seaweed |> drop_na() |>
 
 s4 = gam(
   seaweed_sp_richness ~
-    s(temperature) + wave * station,
+    s(temperature, k = 6) + wave * station,
   data = seaweed,
   family = poisson("log")
 )
@@ -386,14 +386,61 @@ AIC(s3, s4, gl3s)
 
 # s3 のAICが一番低いので、s3 採択する
 
-pdata = seaweed |> 
-  expand(station,
-         nesting(wave = modelr::seq_range(wave, n = 5),
-                 temperature = modelr::seq_range(temperature, n = 5))) |> 
+pdata_temperature = 
+  seaweed |> 
+  group_by(station) |> 
+  mutate(wave = mean(wave)) |> 
+  ungroup() |> 
+  expand(nesting(station, wave),
+         temperature = modelr::seq_range(temperature, n = 5)) |> 
+  modelr::add_predictions(s3, type = "response")
+
+pdata_wave = 
+  seaweed |> 
+  group_by(station) |> 
+  mutate(temperature = mean(temperature, na.rm=T)) |> 
+  ungroup() |> 
+  expand(nesting(station, temperature),
+         wave = modelr::seq_range(wave, n = 5)) |> 
   modelr::add_predictions(s3, type = "response")
 
 
+ggplot() + 
+  geom_point(aes(x = temperature,
+                 y = seaweed_sp_richness),
+             data = seaweed) +
+  geom_line(aes(x = temperature, 
+                y = pred),
+            data = pdata_temperature) + 
+  facet_wrap(vars(station))
 
+ggplot() + 
+  geom_point(aes(x = wave,
+                 y = seaweed_sp_richness),
+             data = seaweed) +
+  geom_line(aes(x = wave, 
+                y = pred),
+            data = pdata_wave) + 
+  facet_wrap(vars(station))
+
+
+
+pdata = seaweed |> modelr::add_predictions(s3, type = "response")
+
+
+ggplot() + 
+  geom_point(aes(x = month,
+                 y = seaweed_sp_richness),
+             data = seaweed) +
+  geom_line(aes(x = month, 
+                y = pred),
+            data = pdata) + 
+  facet_wrap(vars(station))
+
+s3 |> summary()
+
+layout(1)
+plot(s3)
 
 
 
