@@ -41,6 +41,13 @@ maaji = read_sheet(maaji)
 seaweed = read_sheet(seaweed)
 shirogisu = read_sheet(shirogisu)
 
+names(maaji)
+
+ggplot(maaji) + 
+  geom_point(aes(x = month, y = size, color = spot)) +
+  scale_y_continuous(limits = c(0, 40)) +
+  scale_x_continuous(limits = c(0, 13),
+                     breaks = 1:12)
 
 
 
