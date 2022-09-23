@@ -126,7 +126,25 @@ summary(gt1)
 summary(gt2)
 AIC(gt0, gt1, gt2)
 ################################################################################
+seaweed = seaweed |> mutate(month = month(date))
 
+p1 = seaweed |> 
+  pivot_longer(cols = c(wave, temperature)) |> 
+  ggplot() + 
+  geom_point(aes(x = value, y = seaweed_sp_richness)) + 
+  geom_smooth(aes(x = value, y = seaweed_sp_richness),
+              method = "gam",
+              formula = y~s(x)) + 
+  facet_wrap(vars(name))
+
+p2 = ggplot(seaweed) + 
+  geom_point(aes(x = month, y = seaweed_sp_richness)) +
+  geom_smooth(aes(x = month, y = seaweed_sp_richness),
+            method = "gam",
+            formula = y~s(x)) 
+p1 + p2
+
+####################################################################
 dset = read_csv("data/fukue_jma.csv")
 
 dset = dset |> 
