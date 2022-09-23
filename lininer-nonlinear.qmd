@@ -1,0 +1,114 @@
+---
+title: "線形と非線形モデルに見分け"
+author: "greg"
+format: html
+---
+
+## 線形モデルと非線形モデルの見分け
+
+Latex をつかって数式をかく。
+
+モデル $y$ があります。
+
+$$
+y = b_{0} + b_{1} x_{1}
+$$
+
+係数ごとに微分する。（偏微分）
+
+
+$$
+\frac{\partial y}{\partial b_{0}} = 1
+$$
+
+$$
+\frac{\partial y}{\partial b_{1}} = x_{1}
+$$
+
+
+モデルを係数ごとに微分したあと、右辺に係数が残らなかったら、モデルは線形モデルです。
+
+$$
+y = b_0 + b_1 x_1 + b_2 x_1^2
+$$
+
+
+
+係数ごとの微分
+
+$$
+\frac{\partial y}{\partial b_0} = 1
+$$
+$$
+\frac{\partial y}{\partial b_1} = x_1
+$$
+
+$$
+\frac{\partial y}{\partial b_2}=x_1^2
+$$
+
+右辺に係数がないので、このモデルも線形モデルです。
+
+
+光合成光曲線のモデル。
+$$
+P = P_{max} \left(1 - \exp\left(-\frac{\alpha}{P_{max}}x\right)\right) 
+$$
+
+係数ごとに微分する。
+
+* $P_{max}$
+* $\alpha$
+
+$$
+\frac{\partial P}{\partial P_{max}}= 
+-\frac{\alpha x \exp \left(-\frac{\alpha x} {p_{max}}\right)}  {p_{max}} - \exp\left(-\frac{\alpha x}{p_m{ax}}\right) +1
+$$
+
+$$
+\frac{\partial P}{\partial \alpha} = x\exp\left(-\frac{\alpha x}{p_{max}}\right)
+$$
+
+
+右辺に係数がのこるので、このモデルも非線形モデルです。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
