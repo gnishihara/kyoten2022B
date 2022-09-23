@@ -151,6 +151,27 @@ p2 = ggplot(seaweed) +
             ), se = F) 
 p1 + p2
 
+g1 = gam(seaweed_sp_richness ~ s(month, 
+                            bs = "cc",
+                            k = 10), data = seaweed,
+    family = poisson("log"))
+
+seaweed |> 
+  mutate(resid = residuals(g1),
+         qresid = statmod::qresiduals(g1),
+         fit   = fitted((g1))) |> 
+  ggplot() +
+  geom_point(aes(x = fit,
+                 y = qresid))
+
+
+seaweed |> 
+  mutate(resid = residuals(g1),
+         qresid = statmod::qresiduals(g1),
+         fit   = fitted((g1))) |> 
+  ggplot() +
+  geom_qq(aes(sample = qresid))+
+  geom_qq_line(aes(sample = qresid))
 ####################################################################
 dset = read_csv("data/fukue_jma.csv")
 
