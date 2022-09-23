@@ -19,8 +19,8 @@ library(googlesheets4) # google のスプレッドシートの読み込み用
 ################################################################
 # font_files() |> as_tibble() # システムフォントの閲覧
 # font_files() |> as_tibble() |>
-# # filter(str_detect(ps_name, "NotoSansCJK")) |> 
-# select(file, face, ps_name) 
+# # filter(str_detect(ps_name, "NotoSansCJK")) |>
+# select(file, face, ps_name)
 # 埋め込みフォントの指定
 font_add(family = "notosansjp",
          regular = "NotoSansCJKjp-Regular.otf")
@@ -34,7 +34,7 @@ showtext_auto()
 
 gs4_deauth()
 maaji = "https://docs.google.com/spreadsheets/d/1zVX7exLAAzWgHPQOSpQ2eeTIltXYhEYHmUT12REid0M/edit?usp=sharing"
-seaweed = "https://docs.google.com/spreadsheets/d/1RBGytrJa5z7UYOkraqeul7Axhi2LlzjkZsaWyiOMjG0/edit?usp=sharing" 
+seaweed = "https://docs.google.com/spreadsheets/d/1RBGytrJa5z7UYOkraqeul7Axhi2LlzjkZsaWyiOMjG0/edit?usp=sharing"
 shirogisu = "https://docs.google.com/spreadsheets/d/1rb6WA3wkweOUfcpIziGJm9qdcnfVwOYURY1aUkwmdMM/edit?usp=sharing"
 
 maaji = read_sheet(maaji, na = "NA")
@@ -45,45 +45,49 @@ names(maaji)
 
 maaji |> select(temperature) # temperature に chr と dbl が混ざっている
 
-ggplot(maaji) + 
+ggplot(maaji) +
   geom_point(aes(x = month, y = size)) +
   scale_y_continuous(limits = c(0, 40)) +
   scale_x_continuous(limits = c(0, 13),
                      breaks = 1:12)
 
-ggplot(maaji) + 
+ggplot(maaji) +
   geom_point(aes(x = depth_range, y = size)) +
-  scale_y_continuous(limits = c(0, 40)) 
-  
+  scale_y_continuous(limits = c(0, 40))
 
-ggplot(maaji) + 
+
+ggplot(maaji) +
   geom_point(aes(x = dist_from_river, y = size)) +
-  scale_y_continuous(limits = c(0, 40)) 
+  scale_y_continuous(limits = c(0, 40))
 
-ggplot(maaji) + 
+ggplot(maaji) +
   geom_point(aes(x = fetch, y = size)) +
-  scale_y_continuous(limits = c(0, 40)) 
+  scale_y_continuous(limits = c(0, 40))
 
-ggplot(maaji) + 
+ggplot(maaji) +
   geom_point(aes(x = temperature, y = size)) +
   scale_y_continuous(limits = c(0, 40)) +
-  geom_smooth(aes(x = temperature, y = size, color = "TP"),
-              method = "gam",
-              formula = y ~ s(x, k = 6)) +
-  geom_smooth(aes(x = temperature, y = size, color = "CC"),
-              method = "gam",
-              formula = y ~ s(x, k = 6, bs = "cc"),
-              method.args = list(knots = list(month = c(0.5, 12.5))))
+  geom_smooth(
+    aes(x = temperature, y = size, color = "TP"),
+    method = "gam",
+    formula = y ~ s(x, k = 6)
+  ) +
+  geom_smooth(
+    aes(x = temperature, y = size, color = "CC"),
+    method = "gam",
+    formula = y ~ s(x, k = 6, bs = "cc"),
+    method.args = list(knots = list(month = c(0.5, 12.5)))
+  )
 
-ggplot(maaji) + 
+ggplot(maaji) +
   geom_point(aes(x = date, y = size)) +
-  scale_y_continuous(limits = c(0, 40)) 
+  scale_y_continuous(limits = c(0, 40))
 
 
 
 # GAM を ggplot であてはめる
 # 仮かいせき
-ggplot(maaji) + 
+ggplot(maaji) +
   geom_point(aes(x = month, y = size)) +
   scale_y_continuous(limits = c(0, 40)) +
   scale_x_continuous(limits = c(1, 12),
@@ -94,19 +98,24 @@ ggplot(maaji) +
   geom_smooth(aes(x = month, y = size, color = "TP"),
               method = "gam",
               formula = y ~ s(x, k = 6)) +
-  geom_smooth(aes(x = month, y = size, color = "CC"),
-              method = "gam",
-              formula = y ~ s(x, k = 6, bs = "cc"),
-              method.args = list(knots = list(month = c(0.5, 12.5))))
+  geom_smooth(
+    aes(x = month, y = size, color = "CC"),
+    method = "gam",
+    formula = y ~ s(x, k = 6, bs = "cc"),
+    method.args = list(knots = list(month = c(0.5, 12.5)))
+  )
 
 # mgcv::gam()
 # Generalized Additive Model
 # 一般化加法モデル
 g0 = glm(size ~ month, data = maaji, family = gaussian())
 g1 = gam(size ~ s(month, k = 3), data = maaji, family = gaussian())
-g2 = gam(size ~ s(month, k = 3, bs = "cc"), 
-         knots = list(month = c(0.5, 12.5)),
-         data = maaji, family = gaussian())
+g2 = gam(
+  size ~ s(month, k = 3, bs = "cc"),
+  knots = list(month = c(0.5, 12.5)),
+  data = maaji,
+  family = gaussian()
+)
 
 summary(g0)
 summary(g1)
@@ -116,82 +125,161 @@ AIC(g0, g1, g2)
 
 
 gt0 = glm(size ~ temperature, data = maaji, family = gaussian())
-gt1 = gam(size ~ s(temperature, k = 3), data = maaji, family = gaussian())
-gt2 = gam(size ~ s(temperature, k = 3, bs = "cc"), 
-         knots = list(month = c(0.5, 12.5)),
-         data = maaji, family = gaussian())
+gt1 = gam(size ~ s(temperature, k = 3),
+          data = maaji,
+          family = gaussian())
+gt2 = gam(
+  size ~ s(temperature, k = 3, bs = "cc"),
+  knots = list(month = c(0.5, 12.5)),
+  data = maaji,
+  family = gaussian()
+)
 
 summary(gt0)
 summary(gt1)
 summary(gt2)
 AIC(gt0, gt1, gt2)
 ################################################################################
-seaweed = seaweed |> mutate(month = month(date))
+seaweed = seaweed |>
+  mutate(month = month(date),
+         station = factor(station))
 
-p1 = seaweed |> 
-  pivot_longer(cols = c(wave, temperature)) |> 
-  ggplot() + 
-  geom_point(aes(x = value, y = seaweed_sp_richness)) + 
+p1 = seaweed |>
+  pivot_longer(cols = c(wave, temperature)) |>
+  ggplot() +
+  geom_point(aes(x = value, y = seaweed_sp_richness)) +
   geom_smooth(aes(x = value, y = seaweed_sp_richness),
               method = "gam",
-              formula = y~s(x)) + 
+              formula = y ~ s(x)) +
   facet_wrap(vars(name))
 
-p2 = ggplot(seaweed) + 
-  geom_point(aes(x = month, y = seaweed_sp_richness,
-                 color = factor(station))) +
-  geom_smooth(aes(x = month, 
-                  y = seaweed_sp_richness,
-                  group = factor(station)),
-            method = "gam",
-            formula = y~s(x, bs = "cc", k = 10),
-            method.args = list(
-              family = poisson("log"),
-              knots = list(month = c(0.5, 12.5))
-            ), se = F) 
-p1 + p2
+p2 = ggplot(seaweed) +
+  geom_point(aes(
+    x = month,
+    y = seaweed_sp_richness,
+    color = factor(station)
+  )) +
+  geom_smooth(
+    aes(
+      x = month,
+      y = seaweed_sp_richness,
+      group = factor(station)
+    ),
+    method = "gam",
+    formula = y ~ s(x, bs = "cc", k = 10),
+    method.args = list(family = poisson("log"),
+                       knots = list(month = c(0.5, 12.5))),
+    se = F
+  )
+p1 + p2 +plot_layout(ncol = 1)
 
-g1 = gam(seaweed_sp_richness ~ s(month, 
-                            bs = "cc",
-                            k = 10), data = seaweed,
-    family = poisson("log"))
 
-seaweed |> 
-  mutate(resid = residuals(g1),
-         qresid = statmod::qresiduals(g1),
-         fit   = fitted((g1))) |> 
+# QQプロットにより、モデルを却下
+g1 = gam(
+  seaweed_sp_richness ~ s(month,
+                          bs = "cc",
+                          k = 10),
+  data = seaweed,
+  family = poisson("log")
+)
+
+seaweed |>
+  mutate(
+    resid = residuals(g1),
+    qresid = statmod::qresiduals(g1),
+    fit   = fitted((g1))
+  ) |>
+  ggplot() +
+  geom_point(aes(x = fit,
+                 y = qresid))
+
+seaweed |>
+  mutate(
+    resid = residuals(g1),
+    qresid = statmod::qresiduals(g1),
+    fit   = fitted((g1))
+  ) |>
+  ggplot() +
+  geom_qq(aes(sample = qresid)) +
+  geom_qq_line(aes(sample = qresid))
+
+
+# QQプロットにより、モデルを却下
+g2 = gam(
+  seaweed_sp_richness ~ s(month,
+                          bs = "cc",
+                          k = 10,
+                          by = station) + station,
+  data = seaweed,
+  family = poisson("log")
+)
+
+seaweed |>
+  mutate(
+    resid = residuals(g2),
+    qresid = statmod::qresiduals(g2),
+    fit   = fitted((g2))
+  ) |>
   ggplot() +
   geom_point(aes(x = fit,
                  y = qresid))
 
 
-seaweed |> 
-  mutate(resid = residuals(g1),
-         qresid = statmod::qresiduals(g1),
-         fit   = fitted((g1))) |> 
+seaweed |>
+  mutate(
+    resid = residuals(g2),
+    qresid = statmod::qresiduals(g2),
+    fit   = fitted((g2))
+  ) |>
   ggplot() +
-  geom_qq(aes(sample = qresid))+
+  geom_point(aes(x = fit,
+                 y = sqrt(abs(qresid)))) +
+  geom_smooth(aes(x = fit,
+                  y = sqrt(abs(qresid))))
+
+seaweed |>
+  mutate(
+    resid = residuals(g2),
+    qresid = statmod::qresiduals(g2),
+    fit   = fitted((g2))
+  ) |>
+  ggplot() +
+  geom_qq(aes(sample = qresid)) +
   geom_qq_line(aes(sample = qresid))
+
+
+summary(g2)
+# モデルに temperature と wave を追加する
+g3 = gam(
+  seaweed_sp_richness ~
+    s(month,
+      bs = "cc",
+      k = 10,
+      by = station) + station,
+  data = seaweed,
+  family = poisson("log")
+)
+
 ####################################################################
 dset = read_csv("data/fukue_jma.csv")
 
-dset = dset |> 
-  group_by(ymd) |> 
+dset = dset |>
+  group_by(ymd) |>
   summarise(hpa = mean(hpa),
-            temperature_air = mean(temperature_air)) |> 
+            temperature_air = mean(temperature_air)) |>
   mutate(month = month(ymd),
          year = year(ymd))
 
-dset = dset |> 
-  mutate(tau = as.numeric(ymd)/1000)
+dset = dset |>
+  mutate(tau = as.numeric(ymd) / 1000)
 
-dset |> 
-  ggplot() + 
+dset |>
+  ggplot() +
   geom_line(aes(x = ymd, y = hpa)) +
   geom_point(aes(x = ymd, y = hpa))
 
-dset |> 
-  ggplot() + 
+dset |>
+  ggplot() +
   geom_point(aes(x = month, y = hpa))
 
 
@@ -200,34 +288,37 @@ dset |>
 
 m1 = gamm(temperature_air ~ s(month, bs = "cc", k = 12) + s(tau) , data = dset)
 
-layout(matrix(c(1,2), ncol = 2))
+layout(matrix(c(1, 2), ncol = 2))
 plot(m1$gam, scale = 0)
 
-acf(resid(m1$lme))  
+acf(resid(m1$lme))
 pacf(resid(m1$lme))
 
 
-m2 = gamm(temperature_air ~ s(month, bs = "cc", k = 12) + s(tau) , data = dset, correlation = corARMA(form = ~ 1|year, p = 1))
-m3 = gamm(temperature_air ~ s(month, bs = "cc", k = 12) + s(tau) , data = dset, correlation = corARMA(form = ~ 1|year, p = 2))
-m4 = gamm(temperature_air ~ s(month, bs = "cc", k = 12) + s(tau) , data = dset, correlation = corARMA(form = ~ 1|year, p = 3))
+m2 = gamm(
+  temperature_air ~ s(month, bs = "cc", k = 12) + s(tau) ,
+  data = dset,
+  correlation = corARMA(form = ~ 1 | year, p = 1)
+)
+m3 = gamm(
+  temperature_air ~ s(month, bs = "cc", k = 12) + s(tau) ,
+  data = dset,
+  correlation = corARMA(form = ~ 1 | year, p = 2)
+)
+m4 = gamm(
+  temperature_air ~ s(month, bs = "cc", k = 12) + s(tau) ,
+  data = dset,
+  correlation = corARMA(form = ~ 1 | year, p = 3)
+)
 
-AIC(
-  m1$lme,
-  m2$lme,
-  m3$lme,
-  m4$lme
-    ) |> as_tibble(rownames = "model") |> arrange(AIC)
+AIC(m1$lme,
+    m2$lme,
+    m3$lme,
+    m4$lme) |> as_tibble(rownames = "model") |> arrange(AIC)
 
 
-layout(matrix(c(1,2), ncol = 2))
+layout(matrix(c(1, 2), ncol = 2))
 plot(m2$gam, scale = 0)
 
-acf(resid(m2$lme, type = "normalized"))  
+acf(resid(m2$lme, type = "normalized"))
 pacf(resid(m2$lme, type = "normalized"))
-
-
-
-
-
-
-
