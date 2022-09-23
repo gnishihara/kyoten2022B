@@ -76,25 +76,19 @@ ggplot(maaji) +
 
 # GAM を ggplot であてはめる
 # 仮かいせき
-p1 = ggplot(maaji) + 
+ggplot(maaji) + 
   geom_point(aes(x = month, y = size)) +
   scale_y_continuous(limits = c(0, 40)) +
   scale_x_continuous(limits = c(1, 12),
                      breaks = 1:12) +
-  geom_smooth(aes(x = month, y = size),
+  geom_smooth(aes(x = month, y = size, color = "TP"),
               method = "gam",
-              formula = y ~ s(x))
-
-p2 = ggplot(maaji) + 
-  geom_point(aes(x = month, y = size)) +
-  scale_y_continuous(limits = c(0, 40)) +
-  scale_x_continuous(limits = c(1, 12),
-                     breaks = 1:12) +
-  geom_smooth(aes(x = month, y = size),
+              formula = y ~ s(x)) +
+  geom_smooth(aes(x = month, y = size, color = "CC"),
               method = "gam",
               formula = y ~ s(x, bs = "cc"),
               method.args = list(knots = list(month = c(0.5, 12.5))))
-p1 + p2 + plot_layout(ncol = 1)
+
 # mgcv::gam()
 # Generalized Additive Model
 # 一般化加法モデル
