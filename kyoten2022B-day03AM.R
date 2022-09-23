@@ -14,6 +14,8 @@ library(patchwork) # 複数図の結合
 library(magick)    # pdf を png に変換する
 library(showtext)  # フォント埋め込み用
 library(mgcv)
+library(googlesheets4)
+
 ################################################################
 # font_files() |> as_tibble() # システムフォントの閲覧
 # font_files() |> as_tibble() |>
@@ -28,6 +30,52 @@ theme_gray(base_family = "notosansjp") |> theme_set()
 # font_add(family = "meiryo", regular = "meiryo.ttc")
 # theme_gray(base_family = "meiryo") |> theme_set()
 showtext_auto()
+
+
+gs4_deauth()
+maaji = "https://docs.google.com/spreadsheets/d/1zVX7exLAAzWgHPQOSpQ2eeTIltXYhEYHmUT12REid0M/edit?usp=sharing"
+spreadsheet2 = "https://docs.google.com/spreadsheets/d/1RBGytrJa5z7UYOkraqeul7Axhi2LlzjkZsaWyiOMjG0/edit?usp=sharing" 
+spreadsheet3 = "https://docs.google.com/spreadsheets/d/1Im8Qg-ukk8uh_3z4H6IwirTc4nhxPqKrDWrjhK4gZ0o/edit#gid=2099964525"
+
+mgldata = tibble(fnames = c(spreadsheet1, spreadsheet2, spreadsheet3), day = 1:3) |> 
+  mutate(data = map(fnames, read_sheet, sheet = "光合成データ")) |> 
+  select(-fnames)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 dset = read_csv("data/fukue_jma.csv")
 
