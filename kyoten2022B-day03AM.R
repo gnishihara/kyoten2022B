@@ -138,10 +138,17 @@ p1 = seaweed |>
   facet_wrap(vars(name))
 
 p2 = ggplot(seaweed) + 
-  geom_point(aes(x = month, y = seaweed_sp_richness)) +
-  geom_smooth(aes(x = month, y = seaweed_sp_richness),
+  geom_point(aes(x = month, y = seaweed_sp_richness,
+                 color = factor(station))) +
+  geom_smooth(aes(x = month, 
+                  y = seaweed_sp_richness,
+                  group = factor(station)),
             method = "gam",
-            formula = y~s(x)) 
+            formula = y~s(x, bs = "cc", k = 10),
+            method.args = list(
+              family = poisson("log"),
+              knots = list(month = c(0.5, 12.5))
+            ), se = F) 
 p1 + p2
 
 ####################################################################
