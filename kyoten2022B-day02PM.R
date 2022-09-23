@@ -139,6 +139,24 @@ pimodel = function(ppfd, pmax, rd, alpha) {
   pmax * (1 - exp(-alpha / pmax * ppfd)) - rd
 }
 
+pimodel_var = function(ppfd, b0, b1) {
+  b0 + b1 * p
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
 
 preview(rate ~ pimodel(ppfd, pmax, rd, alpha),
         data = alldata,
